@@ -69,7 +69,9 @@ Expected Output
 using namespace std;
 #define ll long long
 const int mod = 1e9+7;
-ll power(ll a,ll b){
+
+// Function to calculate 'a' raised to the power 'b' modulo 'mod'
+ll power(ll a, ll b){
     ll ans = 1;
     while(b){
         if(b&1){
@@ -82,33 +84,50 @@ ll power(ll a,ll b){
     }
     return ans;
 }
-ll inverse(ll n,ll m){
-    return power(n,m);
+
+// Function to calculate the modular inverse of 'n' modulo 'm'
+ll inverse(ll n, ll m){
+    return power(n, m - 2); // Using Fermat's Little Theorem for modular inverse
 }
+
 int main(){
     ll n;
     cin >> n;
+    
     ll odd = 0;
     ll even = 0;
     vector<ll> a(n);
-    for(int i = 0;i < n;i++){
+    
+    // Input the array 'a' and count the number of odd and even elements
+    for(int i = 0; i < n; i++){
         cin >> a[i];
-        if(a[i]&1) odd++;
-        else even++;
+        if(a[i] & 1) odd++; // Increment 'odd' if the element is odd
+        else even++; // Increment 'even' if the element is even
     }
+    
     ll ans = 0;
     ll res = 0;
     ll ans2 = 0;
-    if(even != 0){
-        ans = (power(2,even))%mod;
-        ans--;
-    }
-    if(odd!=0){
-        res = (power(2,odd)%mod * inverse(2,mod-2)%mod)%mod;
-        res--;
-    }
-    if(odd!=0 and even!=0) ans2 = (ans * res)%mod;
-    ans = (ans + res + ans2)%mod;
-    cout << (int)ans;
     
+    // Calculate ans: (2^even - 1) % mod (-1 means we are excluding empty set )( total number of even combination sets tht can pick)
+    if(even != 0){
+        ans = (power(2, even) % mod) - 1;
+        if(ans < 0) ans += mod; // Handle negative result
+    }
+    
+    // Calculate res: (2^odd - 1) * inverse(2, mod-2) % mod (-1 means we are excluding empty set ) (total number of odd combination sets that can pick)
+    if(odd != 0){
+        res = (power(2, odd) % mod * inverse(2, mod - 2) % mod) - 1;
+        if(res < 0) res += mod; // Handle negative result
+    }
+    
+    // Calculate ans2: (ans * res) % mod   (total number of odd and even combination sets that can pick)
+    if(odd != 0 && even != 0) ans2 = (ans * res) % mod;
+    
+    // Calculate the final answer: (ans + res + ans2) % mod
+    // x-C-even(toatl combinations  even number ) i.e (2^even - 1)  +   y-C-odd(total combinations  odd number ) i.e (2^even/2) - 1  +   number of odd and even combination sets
+    ans = (ans + res + ans2) % mod;
+    
+    cout << (int)ans; // Cast 'ans' to int and print the result
+    return 0;
 }
